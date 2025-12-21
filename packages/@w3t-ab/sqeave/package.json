@@ -1,0 +1,6 @@
+{
+  "name": "@w3t-ab/sqeave",
+  "version": "0.0.1",
+  "main": "index.js",
+  "description": "Offline-friendly micro view helpers for Muimi blog."
+}
