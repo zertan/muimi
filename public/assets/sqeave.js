@@ -224,11 +224,22 @@ function build_hero(post) {
 }
 
 function category_menu(categories, activeCategory, onSelect, posts) {
+  const palette = {
+    science: '#66f6ff',
+    tech: '#7cffb7',
+    politics: '#ff9bd1',
+    philosophy: '#c7a7ff',
+    business: '#ffc26f',
+  };
+  function hue(cat) {
+    return palette[cat] || '#f2f2f2';
+  }
   const buttons = categories.map((cat) => {
     const count = posts.filter((p) => p.category === cat).length;
     const label = `${cat} (${count})`;
     const btn = create_node('button', {
       className: `category-chip ${activeCategory === cat ? 'active' : ''}`,
+      attrs: { style: `color:${hue(cat)};text-shadow:0 0 8px ${hue(cat)}66;` },
     }, [text(label)]);
     on(btn, 'click', () => onSelect(activeCategory === cat ? null : cat));
     return btn;
@@ -240,9 +251,20 @@ function category_menu(categories, activeCategory, onSelect, posts) {
 }
 
 function post_list(posts, activeSlug, onSelect) {
+  const palette = {
+    science: '#66f6ff',
+    tech: '#7cffb7',
+    politics: '#ff9bd1',
+    philosophy: '#c7a7ff',
+    business: '#ffc26f',
+  };
+  function hue(cat) {
+    return palette[cat] || '#f2f2f2';
+  }
   const nodes = posts.map((p) => {
     const row = create_node('button', {
       className: `category-post ${activeSlug === p.slug ? 'active' : ''}`,
+      attrs: { style: `color:${hue(p.category)};text-shadow:0 0 10px ${hue(p.category)}66;` },
     }, [
       create_node('div', { className: 'category-post-title' }, [text(p.title)]),
       create_node('div', { className: 'category-post-meta' }, [text(format_date(p.date))]),
@@ -339,23 +361,23 @@ function start_blog(root, posts, categories) {
     article.innerHTML = parsed.html;
 
     const subscribe = subscription_block(subscribeEmail, state.lastEmail);
-    const cards = visible.map((p) => post_card(p, selectPost));
-    const gallery = create_node('section', { className: 'post-gallery' }, [
-      create_node('div', { className: 'menu-title subtle' }, [text('Browse posts')]),
-      ...cards,
+    const about = create_node('section', { className: 'about', attrs: { id: 'about' } }, [
+      create_node('div', { className: 'menu-title subtle' }, [text('About')]),
+      create_node('p', {}, [text('muimi is a minimalist blog for code-flavored tales.')]),
     ]);
 
-    set_main(main, [hero, gallery, article, subscribe]);
+    set_main(main, [hero, article, subscribe, about]);
     set_children(toc, toc_items(parsed.headings));
 
     const menu = category_menu(categories, state.category, selectCategory, state.posts);
     const postsList = post_list(visible, state.activeSlug, selectPost);
+    const aboutLink = create_node('a', { className: 'about-link', attrs: { href: '#about' } }, [text('About')]);
     const legend = create_node('div', { className: 'side-legend' }, [
       create_node('div', { className: 'menu-title subtle' }, [text('Recent tags')]),
       render_tags(current.tags || []),
     ]);
     const brand = brand_block();
-    set_children(side, [brand, menu, postsList, legend]);
+    set_children(side, [brand, aboutLink, menu, postsList, legend]);
   }
 
   function subscribeEmail(email, statusNode) {
