@@ -263,6 +263,23 @@ function make_layout() {
   return { layout, toc, main, side };
 }
 
+function brand_block() {
+  const figure = `
+    <svg viewBox="0 0 160 120" aria-hidden="true" class="brand-figure">
+      <path d="M20 90 C30 60 45 40 70 30 C95 20 115 30 130 55 C110 50 95 55 80 70 C65 85 55 95 35 100 Z" fill="none" stroke="#f5f5f5" stroke-width="2" />
+      <path d="M82 35 Q90 32 98 38" fill="none" stroke="#f5f5f5" stroke-width="2" />
+      <path d="M74 35 Q66 32 58 38" fill="none" stroke="#f5f5f5" stroke-width="2" />
+      <circle cx="76" cy="50" r="2" fill="#f5f5f5" />
+      <circle cx="94" cy="52" r="2" fill="#f5f5f5" />
+      <path d="M75 58 C82 62 90 62 98 58" fill="none" stroke="#f5f5f5" stroke-width="2" />
+    </svg>`;
+  return create_node('div', { className: 'brand' }, [
+    create_node('div', { className: 'brand-mark', html: figure }),
+    create_node('div', { className: 'brand-name' }, [text('muimi')]),
+    create_node('div', { className: 'brand-caption' }, [text('minimal tales in code')]),
+  ]);
+}
+
 function start_blog(root, posts, categories) {
   if (!root) throw new Error('App root missing');
   const state = {
@@ -336,7 +353,8 @@ function start_blog(root, posts, categories) {
       create_node('div', { className: 'menu-title subtle' }, [text('Recent tags')]),
       render_tags(current.tags || []),
     ]);
-    set_children(side, [menu, postsList, legend]);
+    const brand = brand_block();
+    set_children(side, [brand, menu, postsList, legend]);
   }
 
   function subscribeEmail(email, statusNode) {
