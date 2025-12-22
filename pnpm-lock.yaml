@@ -1,0 +1,31 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@w3t-ab/sqeave':
+        specifier: file:packages/@w3t-ab/sqeave
+        version: file:packages/@w3t-ab/sqeave
+      squint-cljs:
+        specifier: file:packages/squint-cljs
+        version: file:packages/squint-cljs
+
+packages:
+
+  '@w3t-ab/sqeave@file:packages/@w3t-ab/sqeave':
+    resolution: {directory: packages/@w3t-ab/sqeave, type: directory}
+
+  squint-cljs@file:packages/squint-cljs:
+    resolution: {directory: packages/squint-cljs, type: directory}
+    hasBin: true
+
+snapshots:
+
+  '@w3t-ab/sqeave@file:packages/@w3t-ab/sqeave': {}
+
+  squint-cljs@file:packages/squint-cljs: {}

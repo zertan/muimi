@@ -132,7 +132,7 @@ a { color: var(--accent); text-decoration: none; }
 .toc-link {
   display: block;
   color: var(--muted);
-  padding: 6px 8px;
+  /* padding: 6px 8px; */
   border-radius: 0;
   transition: color 0.2s;
 }
@@ -147,7 +147,7 @@ a { color: var(--accent); text-decoration: none; }
   background: var(--bg);
   border: none;
   border-radius: 0;
-  padding: 12px;
+  /* padding: 12px; */
   margin-bottom: 12px;
 }
 
