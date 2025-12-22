@@ -1,7 +1,7 @@
 (ns main
   (:require ["@w3t-ab/sqeave" :as sqeave]
             ["solid-js" :refer [For createEffect createResource]]
-            ["@solidjs/router" :refer [Route Routes useNavigate]]
+            ["@solidjs/router" :refer [Route Routes useNavigate useParams]]
             [clojure.string :as str])
   (:require-macros [sqeave :refer [defc]]))
 
@@ -59,8 +59,8 @@
 (defn hue [cat]
   (get color-map cat "#f2f2f2"))
 
-(defn post-path [{:post/keys [slug category]}]
-  (str "/" (name category) "/" slug))
+(defn post-path [{:post/keys [id]}]
+  (str "/post/" id))
 
 (defn pick-post [posts slug category]
   (let [filtered (if category
@@ -201,18 +201,18 @@
                  [:a {:href (str "#" id)}
                   title]])]])
 
-(defc RoutedLayout [this {:blog/keys [id posts post category]
-                          :route/keys [category-param slug-param]}]
-  (let [navigate (useNavigate)]
+(defc RoutedLayout [this {:blog/keys [id posts post category]}]
+  (let [navigate (useNavigate)
+        params (useParams)]
     (createEffect
      (fn []
        (let [all (or (posts) [])
-             cat-kw (some-> category-param keyword)
-             target (or (pick-post all slug-param cat-kw)
+             pid (some-> (aget params "id") js/parseInt)
+             target (or (some #(when (= pid (:post/id %)) %) all)
                         (first all))]
          (when target
            (select-post! this (id) target)
-           (when (and slug-param (not= slug-param (:post/slug target)))
+           (when (or (not pid) (not= pid (:post/id target)))
              (navigate (post-path target) {:replace true})))))))
   (let [[markdown _] (createResource (fn [] (:post/markdown (post))) fetch-markdown)
         [rendered _] (createResource markdown (fn [md]
@@ -239,16 +239,7 @@
                 :component (fn [_]
                              #jsx [RoutedLayout {:ident [:blog/id (id)]
                                                  :blog/posts posts}])}]
-        [Route {:path "/:category"
-                :component (fn [props]
-                             (let [params (.-params props)]
-                               #jsx [RoutedLayout {:ident [:blog/id (id)]
-                                                   :blog/posts posts
-                                                   :route/category-param (aget params "category")}]))}]
-        [Route {:path "/:category/:slug"
-                :component (fn [props]
-                             (let [params (.-params props)]
-                               #jsx [RoutedLayout {:ident [:blog/id (id)]
-                                                   :blog/posts posts
-                                                   :route/category-param (aget params "category")
-                                                   :route/slug-param (aget params "slug")}]))}]])
+        [Route {:path "/post/:id"
+                :component (fn [_]
+                             #jsx [RoutedLayout {:ident [:blog/id (id)]
+                                                 :blog/posts posts}])}]])
