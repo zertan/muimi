@@ -1,0 +1,9 @@
+#!/usr/bin/env node
+const { compileFile } = require('../compiler');
+const path = process.argv[2];
+if (!path) {
+  console.error('Usage: squint <file.cljs>');
+  process.exit(1);
+}
+const code = compileFile(path);
+process.stdout.write(code);

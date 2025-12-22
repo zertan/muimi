@@ -1,0 +1,13 @@
+{
+  "name": "muimi",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.js",
+    "dev": "node scripts/dev.js"
+  },
+  "dependencies": {
+    "@w3t-ab/sqeave": "file:packages/@w3t-ab/sqeave",
+    "squint-cljs": "file:packages/squint-cljs"
+  }
+}

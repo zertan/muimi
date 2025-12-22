@@ -1,0 +1,9 @@
+{
+  "name": "squint-cljs",
+  "version": "0.0.1",
+  "main": "compiler.js",
+  "bin": {
+    "squint": "./bin/squint"
+  },
+  "description": "Minimal offline squint-like compiler for demo purposes."
+}
