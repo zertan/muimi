@@ -9,6 +9,7 @@
     .app { padding: 32px; min-height: 100vh; position: relative; }
     .layout { display: grid; grid-template-columns: 16rem 1fr 16rem; gap: 20px; }
     .pane { background: #000; padding: 12px; }
+    .pane-fixed { position: sticky; top: 0; align-self: start; max-height: 100vh; overflow: auto; }
     .hero { margin-bottom: 24px; }
     .title { margin: 0 0 8px; }
     .subtitle { margin: 0; color: #b0b3b8; }
@@ -16,6 +17,7 @@
     .tag-row { display: flex; gap: 8px; flex-wrap: wrap; }
     .tag { padding: 4px 8px; background: #050505; }
     .category-chip, .post-row { background: #000; border: none; text-align: left; padding: 8px; cursor: pointer; width: 100%; }
+    .category-chip.active, .post-row.active { background: #0a0a0a; }
     .post-row-title { font-size: 14px; }
     .post-row-meta { font-size: 11px; color: #b0b3b8; }
     .brand { margin-bottom: 12px; }
@@ -27,6 +29,7 @@
     .subscribe-form { display: flex; gap: 8px; }
     .subscribe-form input { background: #000; color: #f2f2f2; border: 1px solid #333; padding: 8px; }
     .subscribe-form button { background: #111; color: #f2f2f2; border: 1px solid #333; padding: 8px 12px; cursor: pointer; }
+    .markdown-body h2 { margin-top: 24px; }
   </style>
 </head>
 <body>

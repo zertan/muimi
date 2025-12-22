@@ -1,6 +1,7 @@
 (ns index
   (:require ["solid-js" :refer [createContext]]
             ["solid-js/web" :refer [render]]
+            ["@solidjs/router" :refer [Router]]
             ["@w3t-ab/sqeave" :as sqeave]
             ["./main.cljs" :refer [Main]])
   (:require-macros [sqeave :refer [defc]]))
@@ -9,7 +10,8 @@
 
 (defc Root [this {:keys [] :or {} :ctx (sqeave/init-ctx! AppContext)}]
   #jsx [AppContext.Provider {:value ctx}
-        [Main {:ident [:blog/id 1]}]])
+        [Router {}
+         [Main {:ident [:blog/id 1]}]]])
 
 (let [e (js/document.getElementById "root")]
   (set! (aget e :innerHTML) "")

@@ -1,6 +1,7 @@
 (ns main
   (:require ["@w3t-ab/sqeave" :as sqeave]
-            ["solid-js" :refer [For createMemo]])
+            ["solid-js" :refer [For createEffect createMemo createResource]]
+            ["@solidjs/router" :refer [Route Routes useNavigate useParams]])
   (:require-macros [sqeave :refer [defc]]))
 
 (def categories [:science :tech :politics :philosophy :business])
@@ -90,45 +91,81 @@
         target (some #(when (= slug (:post/slug %)) %) filtered)]
     (or target (first filtered))))
 
-(defc Aside [this {:blog/keys [id {posts [:post/id :post/title :post/date :post/category :post/slug]} category {post [:post/id :post/slug]}]}]
-  #jsx
-  [:aside {:class "pane pane-right"}
-   [:img {:style {:width "200px" :height "200px"}
-          :src "./assets/muimi.png"}]
-   [:div {:class "brand"}
-    [:div {:class "brand-name"} "muimi"]
-    [:div {:class "brand-caption"} "coder noir journal"]]
-   [:a {:class "about-link" :href "#about"} "About"]
-   [:div {:class "menu-title"} "Categories"]
-   [:div {:class "category-list"}
-    [For {:each  categories}
-     (fn [cat _]
-       #jsx [:button {:key cat
-                      :style {:color (hue cat) :text-shadow (str "0 0 8px " (hue cat) "66")}
-                      :class (str "category-chip " (when (= cat (category)) "active"))
-                      :onClick #(sqeave/set! this :blog/category (when-not (= cat (category)) cat))}
-             cat])]]
-   [:div {:class "menu-title"} "Posts"]
-   [:div {:class "post-list"}
-    [For {:each (posts)}
-     (fn [p _]
-       #jsx [:button {:key (:post/slug p)
-                      :style {:color (hue (:post/category p)) :text-shadow (str "0 0 10px " (hue (:post/category p)) "66")}
-                      :class (str "post-row " (when (= (:post/slug p) (:post/slug (post))) "active"))
-                      :onClick #(sqeave/set! this :blog/id (id) :blog/post [:post/id (:post/id p)])}
-             [:div {:class "post-row-title"} (:post/title p)]
-             [:div {:class "post-row-meta"} (:post/date p)]])]]
-   [:section {:id "about" :class "about-block"}
-    [:div {:class "menu-title"} "About"]
-    [:p {} "muimi is a minimal blog rendered with sqeave and Solid."]]
-   [:div {:class "subscribe"}
-    [:h2 {} "Subscribe"]
-    [:p {} "Drop an email to stay in the loop."]
-    [:form {:class "subscribe-form" :action "mailto:subscribe@muimi.local" :method "post"}
-     [:input {:type "email" :name "email" :placeholder "you@example.com" :required true}]
-     [:button {:type "submit"} "Send"]]]])
+(defn post-path [{:post/keys [slug category]}]
+  (str "/" (name category) "/" slug))
 
-(defc Post [this {:post/keys [id slug title summary category tags date sections]}]
+(def remote-markdown-imports
+  #js ["https://esm.sh/markdown-it@14.1.0?bundle"
+       "https://esm.sh/shiki@1.23.0?bundle"])
+
+(defn load-markdown-renderer []
+  (-> (js/Promise.all remote-markdown-imports)
+      (.then (fn [[md-lib shiki]]
+               (-> (.getHighlighter (.-default shiki)
+                                    (clj->js {:theme "poimandres"}))
+                   (.then (fn [highlighter]
+                            (let [md (new (.-default md-lib)
+                                          (clj->js {:highlight (fn [code lang]
+                                                                 (.codeToHtml highlighter code
+                                                                              (clj->js {:lang (or lang "text")
+                                                                                        :theme "poimandres"})))
+                                                    :html true}))]
+                              (fn [markdown]
+                                (.render md (or markdown ""))))))))))
+
+(defc MarkdownBlock [this {:keys [content]}]
+  (let [[renderer _] (createResource load-markdown-renderer)
+        rendered (createMemo #(when-let [f (renderer)]
+                                (f content)))]
+    #jsx [:div {:class "markdown-body"
+                :innerHTML (or (rendered)
+                               (str "<p>Loading renderer from remote edge..." "</p>"))}]))
+
+ (defc Aside [this {:blog/keys [id {posts [:post/id :post/title :post/date :post/category :post/slug]}]
+                    :keys [navigate current-category current-slug]}]
+  (let [current-category (or current-category (fn [] nil))
+        current-slug (or current-slug (fn [] nil))]
+    #jsx
+    [:aside {:class "pane pane-right pane-fixed"}
+     [:img {:style {:width "200px" :height "200px"}
+            :src "./assets/muimi.png"}]
+     [:div {:class "brand"}
+      [:div {:class "brand-name"} "muimi"]
+      [:div {:class "brand-caption"} "coder noir journal"]]
+     [:a {:class "about-link" :href "#about"} "About"]
+     [:div {:class "menu-title"} "Categories"]
+     [:div {:class "category-list"}
+      [For {:each  categories}
+       (fn [cat _]
+         (let [first-slug (:post/slug (pick-post (posts) nil cat))]
+           #jsx [:button {:key cat
+                          :style {:color (hue cat) :text-shadow (str "0 0 8px " (hue cat) "66")}
+                          :class (str "category-chip " (when (= cat (current-category)) "active"))
+                          :onClick #(when navigate
+                                      (navigate (str "/" (name cat) "/" first-slug)))}
+                 cat]))]]
+     [:div {:class "menu-title"} "Posts"]
+     [:div {:class "post-list"}
+      [For {:each (posts)}
+       (fn [p _]
+         #jsx [:button {:key (:post/slug p)
+                        :style {:color (hue (:post/category p)) :text-shadow (str "0 0 10px " (hue (:post/category p)) "66")}
+                        :class (str "post-row " (when (= (:post/slug p) (current-slug)) "active"))
+                        :onClick #(when navigate
+                                    (navigate (post-path p)))}
+                [:div {:class "post-row-title"} (:post/title p)]
+                [:div {:class "post-row-meta"} (:post/date p)]])]]
+     [:section {:id "about" :class "about-block"}
+      [:div {:class "menu-title"} "About"]
+      [:p {} "muimi is a minimal blog rendered with sqeave and Solid."]]
+     [:div {:class "subscribe"}
+      [:h2 {} "Subscribe"]
+      [:p {} "Drop an email to stay in the loop."]
+      [:form {:class "subscribe-form" :action "mailto:subscribe@muimi.local" :method "post"}
+       [:input {:type "email" :name "email" :placeholder "you@example.com" :required true}]
+       [:button {:type "submit"} "Send"]]]]))
+
+ (defc Post [this {:post/keys [id slug title summary category tags date sections]}]
   #jsx
   [:<>
    [:header {:class "hero"}
@@ -143,22 +180,54 @@
     (fn [{:keys [title body]}]
       #jsx [:section {}
             [:h2 {:id title} title]
-            [:p {} body]])]])
+            [MarkdownBlock {:content body}]])]])
 
-(defc Main [this {:blog/keys [id {posts [:post/id :post/title]} post category]
+(defc LeftPane [this {:post/keys [sections title]}]
+  #jsx [:aside {:class "pane pane-left pane-fixed"}
+        [:div {:class "menu-title"} "TOC"]
+        [For {:each (or sections [])}
+         (fn [{:keys [title]} _]
+           #jsx [:div {:class "toc-row" :key title}
+                 [:a {:href (str "#" title)}
+                  title]])]])
+
+(defc RoutedLayout [this {:blog/keys [id {posts [:post/id :post/title :post/date :post/category :post/slug]}]
+                         :or {id 1
+                              posts sample-posts}}]
+  (let [navigate (useNavigate)
+        params (useParams)
+        category-param (createMemo #(some-> (aget params "category") keyword))
+        slug-param (createMemo #(aget params "slug"))
+        active-post (createMemo #(pick-post (posts) (slug-param) (category-param)))
+        active-category (createMemo #(or (category-param)
+                                         (:post/category (active-post))))
+        active-slug (createMemo #(:post/slug (active-post)))]
+    (createEffect
+     (fn []
+       (when (and (active-post) (not (slug-param)))
+         (navigate (post-path (active-post)) {:replace true}))))
+    #jsx [:div {:class "layout"}
+          [LeftPane {:post/sections (:post/sections (active-post))
+                     :post/title (:post/title (active-post))}]
+          [:main {:class "pane pane-main"}
+           [Post {:post/id (:post/id (active-post))
+                  :post/slug (:post/slug (active-post))
+                  :post/title (:post/title (active-post))
+                  :post/summary (:post/summary (active-post))
+                  :post/category (:post/category (active-post))
+                  :post/tags (:post/tags (active-post))
+                  :post/date (:post/date (active-post))
+                  :post/sections (:post/sections (active-post))}]]
+
+          [Aside {:ident [:blog/id (id)]
+                  :navigate navigate
+                  :current-category active-category
+                  :current-slug active-slug}]]))
+
+(defc Main [this {:blog/keys [id {posts [:post/id :post/title]}]
                   :or {id 1
-                       post [:post/id 1]
-                       posts sample-posts
-                       category (first categories)}}]
-  #jsx [:div {:class "layout"}
-        [:aside {:class "pane pane-left"}
-         [:div {:class "menu-title"} "TOC"]
-         [For {:each (posts)}
-          (fn [{:post/keys [title] :as row} _]
-            #jsx [:div {:class "toc-row" :key title}
-                  [:a {:href (str "#" title)}
-                   title]])]]
-        [:main {:class "pane pane-main"}
-         [Post {:ident (post)}]]
-
-        [Aside {:ident [:blog/id (id)]}]])
+                       posts sample-posts}}]
+  #jsx [Routes {}
+        [Route {:path "/" :element (#jsx [RoutedLayout {:ident [:blog/id (id)] :blog/posts posts}])}]
+        [Route {:path "/:category" :element (#jsx [RoutedLayout {:ident [:blog/id (id)] :blog/posts posts}])}]
+        [Route {:path "/:category/:slug" :element (#jsx [RoutedLayout {:ident [:blog/id (id)] :blog/posts posts}])}]])
