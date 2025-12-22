@@ -6,18 +6,18 @@
     "dev": "vite",
     "build": "vite build"
   },
-    "dependencies": {
-	    "solid-js": "^1.9.9",
-        "@solidjs/router": "^0.14.10",
-        "markdown-it": "^14.1.0",
-        "shiki": "^1.23.0"
-    },
+  "dependencies": {
+    "@solidjs/router": "^0.14.10",
+    "markdown-it": "^14.1.0",
+    "shiki": "^1.23.0",
+    "solid-js": "^1.9.9"
+  },
   "devDependencies": {
     "@w3t-ab/sqeave": "^0.4.1",
-      "@w3t-ab/vite-plugin-squint": "^0.0.5",
+    "@w3t-ab/vite-plugin-squint": "^0.0.5",
     "vite": "^6.3.5",
-      "vite-plugin-solid": "^2.11.8",
-      "solid-devtools": "^0.34.3",
-          "squint-cljs": "^0.8.153"
+    "vite-plugin-solid": "^2.11.8",
+    "solid-devtools": "^0.34.3",
+    "squint-cljs": "^0.8.153"
   }
 }
