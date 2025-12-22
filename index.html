@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script type="module">
+    export * from "./src/main/index.cljs";
+  </script>
+  <style>
+    body { margin: 0; font-family: 'JetBrains Mono', monospace; background: #000; color: #f2f2f2; height: "100vh"; }
+    .app { padding: 32px; min-height: 100vh; position: relative; }
+    .layout { display: grid; grid-template-columns: 16rem 1fr 16rem; gap: 20px; }
+    .pane { background: #000; padding: 12px; }
+    .hero { margin-bottom: 24px; }
+    .title { margin: 0 0 8px; }
+    .subtitle { margin: 0; color: #b0b3b8; }
+    .menu-title { letter-spacing: 0.1em; font-size: 12px; color: #b0b3b8; margin: 0 0 8px; text-transform: uppercase; }
+    .tag-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag { padding: 4px 8px; background: #050505; }
+    .category-chip, .post-row { background: #000; border: none; text-align: left; padding: 8px; cursor: pointer; width: 100%; }
+    .post-row-title { font-size: 14px; }
+    .post-row-meta { font-size: 11px; color: #b0b3b8; }
+    .brand { margin-bottom: 12px; }
+    .brand-name { font-size: 18px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .brand-caption { color: #b0b3b8; font-size: 12px; }
+    .about-link { display: inline-block; margin-bottom: 12px; color: #f2f2f2; text-decoration: none; letter-spacing: 0.08em; }
+    .about-link:hover { color: #fff; }
+    .subscribe { position: fixed; left: 16px; bottom: 16px; background: #050505; padding: 12px; border: 1px solid #111; }
+    .subscribe-form { display: flex; gap: 8px; }
+    .subscribe-form input { background: #000; color: #f2f2f2; border: 1px solid #333; padding: 8px; }
+    .subscribe-form button { background: #111; color: #f2f2f2; border: 1px solid #333; padding: 8px 12px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>
