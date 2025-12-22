@@ -1,5 +1,6 @@
 (ns main
-  (:require ["@w3t-ab/sqeave" :as sqeave])
+  (:require ["@w3t-ab/sqeave" :as sqeave]
+            ["solid-js" :refer [For createMemo]])
   (:require-macros [sqeave :refer [defc]]))
 
 (def categories [:science :tech :politics :philosophy :business])
@@ -89,58 +90,75 @@
         target (some #(when (= slug (:post/slug %)) %) filtered)]
     (or target (first filtered))))
 
-(defc Main [this {:blog/keys [posts category active-slug]
-                  :or {posts sample-posts category nil active-slug nil}}]
-  (let [posts (posts)
-        category (category)
-        active (pick-post posts (active-slug) category)]
-    #jsx [:div {:class "app"}
-          [:div {:class "layout"}
-           [:aside {:class "pane pane-left"}
-            [:div {:class "menu-title"} "TOC"]
-            (for [{:keys [title]} (:post/sections active)]
-              [:div {:class "toc-row" :key title} [:a {:href (str "#" (sqeave/slugify title))} title]])]
-           [:main {:class "pane pane-main"}
-            [:header {:class "hero"}
-             [:div {:class "eyebrow"} (str (-> active :post/category name clojure.string/upper-case) " • " (:post/date active))]
-             [:h1 {:class "title"} (:post/title active)]
-             [:p {:class "subtitle"} (:post/summary active)]
-             [:div {:class "tag-row"}
-              (for [t (:post/tags active)]
-                [:span {:class "tag" :key t} t])]]
-            (for [{:keys [title body]} (:post/sections active)]
-              [:section {:key title}
-               [:h2 {:id (sqeave/slugify title)} title]
-               (for [line (.split body "\n")]
-                 [:p {:key (str title line)} line])])]
-           [:aside {:class "pane pane-right"}
-            [:div {:class "brand"}
-             [:div {:class "brand-name"} "muimi"]
-             [:div {:class "brand-caption"} "coder noir journal"]]
-            [:a {:class "about-link" :href "#about"} "About"]
-            [:div {:class "menu-title"} "Categories"]
-            [:div {:class "category-list"}
-             (for [cat categories]
-               [:button {:key cat
-                         :style {:color (hue cat) :text-shadow (str "0 0 8px " (hue cat) "66")}
-                         :class (str "category-chip " (when (= cat category) "active"))
-                         :onClick #(sqeave/set! this :blog/category (when-not (= cat category) cat))}
-                (str (name cat))])]
-            [:div {:class "menu-title"} "Posts"]
-            [:div {:class "post-list"}
-             (for [p (if category (filter #(= category (:post/category %)) posts) posts)]
-               [:button {:key (:post/slug p)
-                         :style {:color (hue (:post/category p)) :text-shadow (str "0 0 10px " (hue (:post/category p)) "66")}
-                         :class (str "post-row " (when (= (:post/slug p) (:post/slug active)) "active"))
-                         :onClick #(sqeave/set! this :blog/active-slug (:post/slug p))}
-                [:div {:class "post-row-title"} (:post/title p)]
-                [:div {:class "post-row-meta"} (:post/date p)]])]
-            [:section {:id "about" :class "about-block"}
-             [:div {:class "menu-title"} "About"]
-             [:p {} "muimi is a minimal blog rendered with sqeave and Solid."]]]]
-          [:div {:class "subscribe"}
-           [:h2 {} "Subscribe"]
-           [:p {} "Drop an email to stay in the loop."]
-           [:form {:class "subscribe-form" :action "mailto:subscribe@muimi.local" :method "post"}
-            [:input {:type "email" :name "email" :placeholder "you@example.com" :required true}]
-            [:button {:type "submit"} "Send"]]]]))
+(defc Aside [this {:blog/keys [id {posts [:post/id :post/title :post/date :post/category :post/slug]} category {post [:post/id :post/slug]}]}]
+  #jsx
+  [:aside {:class "pane pane-right"}
+   [:img {:style {:width "200px" :height "200px"}
+          :src "./assets/muimi.png"}]
+   [:div {:class "brand"}
+    [:div {:class "brand-name"} "muimi"]
+    [:div {:class "brand-caption"} "coder noir journal"]]
+   [:a {:class "about-link" :href "#about"} "About"]
+   [:div {:class "menu-title"} "Categories"]
+   [:div {:class "category-list"}
+    [For {:each  categories}
+     (fn [cat _]
+       #jsx [:button {:key cat
+                      :style {:color (hue cat) :text-shadow (str "0 0 8px " (hue cat) "66")}
+                      :class (str "category-chip " (when (= cat (category)) "active"))
+                      :onClick #(sqeave/set! this :blog/category (when-not (= cat (category)) cat))}
+             cat])]]
+   [:div {:class "menu-title"} "Posts"]
+   [:div {:class "post-list"}
+    [For {:each (posts)}
+     (fn [p _]
+       #jsx [:button {:key (:post/slug p)
+                      :style {:color (hue (:post/category p)) :text-shadow (str "0 0 10px " (hue (:post/category p)) "66")}
+                      :class (str "post-row " (when (= (:post/slug p) (:post/slug (post))) "active"))
+                      :onClick #(sqeave/set! this :blog/id (id) :blog/post [:post/id (:post/id p)])}
+             [:div {:class "post-row-title"} (:post/title p)]
+             [:div {:class "post-row-meta"} (:post/date p)]])]]
+   [:section {:id "about" :class "about-block"}
+    [:div {:class "menu-title"} "About"]
+    [:p {} "muimi is a minimal blog rendered with sqeave and Solid."]]
+   [:div {:class "subscribe"}
+    [:h2 {} "Subscribe"]
+    [:p {} "Drop an email to stay in the loop."]
+    [:form {:class "subscribe-form" :action "mailto:subscribe@muimi.local" :method "post"}
+     [:input {:type "email" :name "email" :placeholder "you@example.com" :required true}]
+     [:button {:type "submit"} "Send"]]]])
+
+(defc Post [this {:post/keys [id slug title summary category tags date sections]}]
+  #jsx
+  [:<>
+   [:header {:class "hero"}
+    [:div {:class "eyebrow"} (str (category) " • " (date))]
+    [:h1 {:class "title"} (title)]
+    [:p {:class "subtitle"} (summary)]
+    [:div {:class "tag-row"}
+     [For {:each (tags)}
+      (fn [t _]
+        #jsx [:span {:class "tag" :key t} t])]]]
+   [For {:each (sections)}
+    (fn [{:keys [title body]}]
+      #jsx [:section {}
+            [:h2 {:id title} title]
+            [:p {} body]])]])
+
+(defc Main [this {:blog/keys [id {posts [:post/id :post/title]} post category]
+                  :or {id 1
+                       post [:post/id 1]
+                       posts sample-posts
+                       category (first categories)}}]
+  #jsx [:div {:class "layout"}
+        [:aside {:class "pane pane-left"}
+         [:div {:class "menu-title"} "TOC"]
+         [For {:each (posts)}
+          (fn [{:post/keys [title] :as row} _]
+            #jsx [:div {:class "toc-row" :key title}
+                  [:a {:href (str "#" title)}
+                   title]])]]
+        [:main {:class "pane pane-main"}
+         [Post {:ident (post)}]]
+
+        [Aside {:ident [:blog/id (id)]}]])

@@ -8,8 +8,8 @@
 (def AppContext (createContext))
 
 (defc Root [this {:keys [] :or {} :ctx (sqeave/init-ctx! AppContext)}]
-  #jsx [AppContext.Provider {:value this.-ctx}
-        [Main {:ident [:main/id 0]}]])
+  #jsx [AppContext.Provider {:value ctx}
+        [Main {:ident [:blog/id 1]}]])
 
 (let [e (js/document.getElementById "root")]
   (set! (aget e :innerHTML) "")
