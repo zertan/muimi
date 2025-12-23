@@ -1,5 +1,5 @@
 (ns index
-  (:require ["solid-js" :refer [createContext]]
+  (:require ["solid-js" :refer [createContext createEffect]]
             ["solid-js/web" :refer [render]]
             ["@w3t-ab/sqeave" :as sqeave]
             ["./main.cljs" :refer [Main]])
