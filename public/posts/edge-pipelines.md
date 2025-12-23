@@ -28,3 +28,7 @@ echo "🚀 ready for a noisy edge node"
 ## Observability trail
 
 The only good alert is the one that points to a log line and a fix. Every alert should arrive with a traceable log, a rollback note, and an owner.
+
+```bash
+$ ls
+```
