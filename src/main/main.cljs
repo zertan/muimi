@@ -1,13 +1,12 @@
 (ns main
   (:require ["@w3t-ab/sqeave" :as sqeave]
-            ["solid-js" :refer [For createEffect createResource onMount createMemo children]]
-            ["@solidjs/router" :refer [Route Router useNavigate useParams useLocation]]
+            ["solid-js" :refer [onMount]]
+            ["@solidjs/router" :refer [Route Router useParams]]
             ["./Post.cljs" :refer [Post]]
             ["./db.cljs" :as db]
             ["./md.cljs" :as md]
             ["./Aside.cljs" :refer [Aside]]
-            ["./LeftPane.cljs" :refer [LeftPane]]
-            [clojure.string :as str])
+            ["./LeftPane.cljs" :refer [LeftPane]])
   (:require-macros [sqeave :refer [defc]]))
 
 #_(defn slugify [text seen]
@@ -27,21 +26,15 @@
 (defc About [this {:keys/about [id description]}]
   #jsx [:div {} "About"])
 
-(defn Subscribe []
-  #jsx [:div {:class "subscribe"}
-        [:h2 {} "Subscribe"]
-        [:p {} "Drop an email to stay in the loop."]
-        [:form {:class "subscribe-form" :action "mailto:subscribe@muimi.local" :method "post"}
-         [:input {:type "email" :name "email" :placeholder "you@example.com" :required true}]
-         [:button {:type "submit"} "Send"]]])
-
 (defc Blog [this {:blog/keys [id]}]
-  #jsx [:div {:class "layout" :style {:width "100vw"}}
-        [LeftPane {:toc (:toc {})}]
-        [:main {:class "pane pane-main"}
-         props.children]
-        [Aside {:ident [:blog/id (id)]}]
-        [Subscribe]])
+  #jsx
+  [:div {:class "bg-slate-950"}
+   [:div {:class "mx-auto flex min-h-screen max-w-6xl flex-col px-5 pb-14 pt-10 lg:px-8 lg:pt-14"}
+    [:div {:class "grid flex-1 grid-cols-1 gap-8 lg:grid-cols-[18rem,1fr,16rem] lg:items-start"}
+     [LeftPane {:toc []}]
+     [:main {:class "min-w-0 space-y-10 rounded-2xl border border-slate-800/60 bg-slate-900/60 p-6 shadow-glow backdrop-blur lg:order-none"}
+      props.children]
+     [Aside {:ident [:blog/id (id)]}]]]])
 
 (defc Main [this {:blog/keys [id posts post categories]
                   :or {id 1

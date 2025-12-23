@@ -1,8 +1,5 @@
 (ns main
-  (:require ["@w3t-ab/sqeave" :as sqeave]
-            ["solid-js" :refer [For createEffect createResource]]
-            ["@solidjs/router" :refer [Route Router useNavigate useParams useLocation]]
-            [clojure.string :as str])
+  (:require ["solid-js" :refer [For]])
   (:require-macros [sqeave :refer [defc]]))
 
 (def color-map
@@ -30,33 +27,33 @@
 (defc Aside [this {:blog/keys [id post category categories
                                {posts [:post/id :post/title :post/date :post/category :post/slug :post/markdown]}]}]
   #jsx
-  [:aside {:class "pane pane-right pane-fixed" :style {:text-align "right"}}
-   [:img {:style {:width "200px" :height "200px"}
-          :src "./assets/muimi.png"}]
-   [:div {:class "brand"}
-    [:div {:class "brand-name"} "muimi"]
-    [:div {:class "brand-caption"} "in the end, nothing matters"]]
-   [:a {:class "about-link" :href "/about"} "About"]
-   #_[:p {} "muimi is a minimal blog rendered with sqeave and Solid."]
-   [:div {:class "menu-title"} "Categories"]
-   [:div {:class "category-list"}
-    [For {:each  (categories)}
-     (fn [cat _]
-       #jsx [:a {:key cat
-                 :style {:color (hue cat)
-                         :text-shadow (str "0 0 8px " (hue cat) "66")}
-                 :class (str "category-chip " (when (= cat (:post/category (post))) "active"))
-                 :href (str "/category/" cat)}
-             cat])]]
-   [:div {:class "menu-title"} "Posts"]
-   [:div {:class "post-list"}
-    [For {:each (posts)}
-     (fn [p _]
-       #jsx [:a {:key (:post/slug p)
-                      :style {:color (hue (:post/category p))
-                              :text-shadow (str "0 0 10px " (hue (:post/category p)) "66")
-                              :text-align "right"}
-                      :class (str "post-row " (when (= (:post/slug p) (:post/slug (post))) "active"))
+  [:aside {:class "sticky top-8 hidden h-fit space-y-6 text-right lg:block"}
+   [:div {:class "rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-glow backdrop-blur"}
+    [:div {:class "brand mb-3"}
+     [:div {:class "text-sm uppercase tracking-[0.3em] text-slate-400"} "muimi"]
+     [:div {:class "text-lg font-semibold text-white"} "in the end, nothing matters"]]
+    [:a {:class "inline-flex items-center text-sm font-medium text-slate-200 transition hover:text-white"
+         :href "/about"}
+     "About"]]
+   [:div {:class "rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-glow backdrop-blur"}
+    [:div {:class "mb-3 text-[11px] uppercase tracking-[0.24em] text-slate-400"} "Categories"]
+    [:div {:class "flex flex-col gap-2"}
+     [For {:each  (categories)}
+      (fn [cat _]
+        #jsx [:a {:key cat
+                  :style {:color (hue cat)}
+                  :class (str "flex items-center justify-between rounded-lg border border-slate-800/80 px-3 py-2 text-sm text-slate-100 transition hover:border-slate-700 hover:bg-slate-800/60 " (when (= cat (:post/category (post))) "bg-slate-800/80 ring-1 ring-slate-700"))
+                  :href (str "/category/" cat)}
+              [:span {:class "capitalize"} (name cat)]
+              [:span {:class "text-[11px] uppercase tracking-[0.18em] text-slate-400"} "browse"]])]]]
+   [:div {:class "rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-glow backdrop-blur"}
+    [:div {:class "mb-3 text-[11px] uppercase tracking-[0.24em] text-slate-400"} "Posts"]
+    [:div {:class "flex flex-col gap-2"}
+     [For {:each (posts)}
+      (fn [p _]
+        #jsx [:a {:key (:post/slug p)
+                 :style {:color (hue (:post/category p))}
+                 :class (str "rounded-lg border border-slate-800/80 px-3 py-2 text-left text-slate-100 transition hover:border-slate-700 hover:bg-slate-800/60 " (when (= (:post/slug p) (:post/slug (post))) "bg-slate-800/80 ring-1 ring-slate-700"))
                  :href (post-path p)}
-             [:div {:class "post-row-title"} (:post/title p)]
-             [:div {:class "post-row-meta"} (:post/date p)]])]]])
+              [:div {:class "text-sm font-semibold leading-tight"} (:post/title p)]
+              [:div {:class "text-[11px] uppercase tracking-[0.18em] text-slate-400"} (:post/date p)]])]]]])

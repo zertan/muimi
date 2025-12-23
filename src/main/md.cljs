@@ -111,5 +111,5 @@
 
 (defn Markdown [{:keys [source]}]
   (let [[html] (createMarkdownResource source)]
-    #jsx [:div {:class "markdown"
+    #jsx [:div {:class "markdown prose prose-invert prose-headings:text-white prose-p:text-slate-200 prose-li:text-slate-200 prose-strong:text-white prose-a:text-accent max-w-none prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800 prose-code:font-mono prose-code:text-accent"
                 :innerHTML (if (html) (html) "<p>Loading…</p>")}]))
