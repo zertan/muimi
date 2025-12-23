@@ -14,6 +14,7 @@
 
 (defn fetch-markdown [path]
   (when path
+    (js/console.log "fetch:" path)
     (-> (js/fetch path)
         (.then (fn [resp] (.text resp))))))
 
@@ -28,4 +29,5 @@
       (fn [t _]
         #jsx [:span {:class "tag" :key t} t])]]
     [:p {:class "subtitle"} (summary)]]
-   [md/Markdown {:md (fetch-markdown (markdown))}]])
+   (markdown)
+   [md/Markdown {:source markdown}]])

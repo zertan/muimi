@@ -36,7 +36,7 @@
          [:button {:type "submit"} "Send"]]])
 
 (defc Blog [this {:blog/keys [id]}]
-  #jsx [:div {:class "layout"}
+  #jsx [:div {:class "layout" :style {:width "100vw"}}
         [LeftPane {:toc (:toc {})}]
         [:main {:class "pane pane-main"}
          props.children]

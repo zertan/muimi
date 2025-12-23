@@ -10,7 +10,7 @@
     :post/category :tech
     :post/tags ["edge" "streaming" "ops"]
     :post/date "2024-12-02"
-    :post/markdown "/posts/edge-pipelines.md"}
+    :post/markdown "/assets/posts/edge-pipelines.md"}
    {:post/id 2
     :post/slug "quantum-systems"
     :post/title "Quantum systems that feel like code"
@@ -18,7 +18,7 @@
     :post/category :science
     :post/tags ["quantum" "experiments" "signal"]
     :post/date "2024-09-19"
-    :post/markdown "/posts/quantum-systems.md"}
+    :post/markdown "/assets/posts/quantum-systems.md"}
    {:post/id 3
     :post/slug "digital-commons"
     :post/title "Digital commons and the civic stack"
@@ -26,7 +26,7 @@
     :post/category :politics
     :post/tags ["policy" "internet" "civic-tech"]
     :post/date "2024-07-14"
-    :post/markdown "/posts/digital-commons.md"}
+    :post/markdown "/assets/posts/digital-commons.md"}
    {:post/id 4
     :post/slug "ethics-automation"
     :post/title "Automation with a conscience"
@@ -34,7 +34,7 @@
     :post/category :philosophy
     :post/tags ["ethics" "automation" "design"]
     :post/date "2024-10-05"
-    :post/markdown "/posts/ethics-automation.md"}
+    :post/markdown "/assets/posts/ethics-automation.md"}
    {:post/id 5
     :post/slug "ops-capital"
     :post/title "Operational capital for builders"
@@ -42,4 +42,4 @@
     :post/category :business
     :post/tags ["ops" "runway" "cadence"]
     :post/date "2024-11-18"
-    :post/markdown "/posts/ops-capital.md"}])
+    :post/markdown "/assets/posts/ops-capital.md"}])

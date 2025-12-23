@@ -16,8 +16,80 @@
     .menu-title { letter-spacing: 0.1em; font-size: 12px; color: #b0b3b8; margin: 0 0 8px; text-transform: uppercase; }
     .tag-row { display: flex; gap: 8px; flex-wrap: wrap; }
     .tag { padding: 4px 8px; background: #050505; }
-    .category-chip, .post-row { background: #000; border: none; text-align: left; padding: 8px; cursor: pointer; width: 100%; }
-    .category-chip.active, .post-row.active { background: #0a0a0a; }
+    /* container for the vertical list */
+    .category-list {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	width: 100%;
+    }
+
+    /* your base */
+    .category-chip,
+    .post-row {
+	background: #000;
+	border: none;
+	text-align: left;
+	padding: 8px;
+	cursor: pointer;
+	width: 100%;
+    }
+
+    /* category list styling */
+    .category-chip {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+
+	color: rgba(255, 255, 255, 0.9);
+	border-radius: 10px;
+	line-height: 1.1;
+
+	/* subtle separation without borders */
+	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+	transition: transform 80ms ease, box-shadow 120ms ease, background 120ms ease;
+    }
+
+    .category-chip:hover {
+	background: rgba(255, 255, 255, 0.04);
+	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16) inset;
+    }
+
+    .category-chip:active {
+	transform: translateY(1px);
+    }
+
+    /* keyboard focus */
+    .category-chip:focus-visible {
+	outline: none;
+	box-shadow:
+	    0 0 0 2px rgba(255, 255, 255, 0.22),
+	    0 0 0 1px rgba(255, 255, 255, 0.14) inset;
+    }
+
+    /* selected/active state */
+    .category-chip.is-active,
+    .category-chip[aria-current="true"] {
+	background: rgba(255, 255, 255, 0.08);
+	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22) inset;
+    }
+
+    /* optional sub-elements */
+    .category-chip .label {
+	font-weight: 600;
+	letter-spacing: 0.2px;
+    }
+
+    .category-chip .count {
+	font-size: 12px;
+	padding: 2px 8px;
+	border-radius: 999px;
+	color: rgba(255, 255, 255, 0.8);
+	background: rgba(255, 255, 255, 0.08);
+    }
+
+
     .post-row-title { font-size: 14px; }
     .post-row-meta { font-size: 11px; color: #b0b3b8; }
     .brand { margin-bottom: 12px; }
