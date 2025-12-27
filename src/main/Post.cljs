@@ -1,6 +1,7 @@
 (ns post
   (:require ["solid-js" :refer [For]]
-            ["./md.cljs" :as md])
+            ["./md.cljs" :as md]
+            ["@w3t-ab/sqeave" :as sqeave])
   (:require-macros [sqeave :refer [defc]]))
 
 (defc Post [this {:post/keys [id slug title summary tags markdown date category]}]
@@ -14,5 +15,4 @@
       (fn [t _]
         #jsx [:span {:class "inline-flex items-center rounded-full bg-slate-800/70 px-3 py-1 text-xs font-semibold text-slate-100 shadow-inner shadow-black/30" :key t} t])]]
     [:p {:class "mt-3 text-base leading-relaxed text-slate-300"} (summary)]]
-   (markdown)
    [md/Markdown {:source markdown}]])

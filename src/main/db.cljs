@@ -3,7 +3,7 @@
 
 (def categories
   (mapv (fn [cat]
-          (keyword cat))
+          cat)
         category-data))
 
 (defn- hydrate-post [p]
@@ -11,8 +11,8 @@
    :post/slug (.-slug p)
    :post/title (.-title p)
    :post/summary (.-summary p)
-   :post/category (keyword (.-category p))
-   :post/tags (vec (js->clj (.-tags p)))
+   :post/category (.-category p)
+   :post/tags (vec (.-tags p))
    :post/date (.-date p)
    :post/markdown (.-markdown p)})
 

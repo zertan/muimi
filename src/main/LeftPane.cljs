@@ -1,6 +1,7 @@
 (ns main
   (:require ["solid-js" :refer [For Show createMemo]]
             ["@solidjs/router" :refer [useLocation]]
+            ["@w3t-ab/sqeave" :as sqeave]
             ["./Subscribe.cljs" :refer [SubscribeCard]]
             [clojure.string :as str])
   (:require-macros [sqeave :refer [defc]]))

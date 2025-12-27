@@ -7,7 +7,9 @@
     "build": "vite build"
   },
   "dependencies": {
+    "@shikijs/langs": "^3.20.0",
     "@shikijs/markdown-it": "^3.20.0",
+    "@shikijs/themes": "^3.20.0",
     "@solidjs/router": "^0.15.4",
     "async": "link:@shikijs/markdown-it/async",
     "markdown-it": "^14.1.0",

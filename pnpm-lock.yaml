@@ -8,9 +8,15 @@ importers:
 
   .:
     dependencies:
+      '@shikijs/langs':
+        specifier: ^3.20.0
+        version: 3.20.0
       '@shikijs/markdown-it':
         specifier: ^3.20.0
         version: 3.20.0(markdown-it-async@2.2.0)
+      '@shikijs/themes':
+        specifier: ^3.20.0
+        version: 3.20.0
       '@solidjs/router':
         specifier: ^0.15.4
         version: 0.15.4(solid-js@1.9.10)

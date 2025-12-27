@@ -28,11 +28,11 @@
 
 (defc Blog [this {:blog/keys [id]}]
   #jsx
-  [:div {:class "bg-slate-950"}
-   [:div {:class "mx-auto flex min-h-screen max-w-6xl flex-col px-5 pb-14 pt-10 lg:px-8 lg:pt-14"}
+  [:div {:class "bg-black"}
+   [:div {:class "mx-auto flex min-h-screen max-w-7xl flex-col px-5 pb-8 pt-8 lg:px-8 lg:pt-8"}
     [:div {:class "grid flex-1 grid-cols-1 gap-8 lg:grid-cols-[18rem,1fr,16rem] lg:items-start"}
      [LeftPane {:toc []}]
-     [:main {:class "min-w-0 space-y-10 rounded-2xl border border-slate-800/60 bg-slate-900/60 p-6 shadow-glow backdrop-blur lg:order-none"}
+     [:main {:class "min-w-0 space-y-10 border-slate-800/60 shadow-glow backdrop-blur lg:order-none"}
       props.children]
      [Aside {:ident [:blog/id (id)]}]]]])
 
@@ -42,7 +42,8 @@
                        categories db/categories
                        posts db/posts}}]
   (do
-    (onMount md/shiki-md-init)
+    (onMount (fn []
+                 (md/shiki-md-init)))
     #jsx [Router {:root (fn [props]
                           #jsx [Blog {:& (merge props {:ident [:blog/id (id)]})}])}
           [Route {:path "/about"

@@ -1,5 +1,6 @@
 (ns main
-  (:require ["solid-js" :refer [For]])
+  (:require ["solid-js" :refer [For]]
+            ["@w3t-ab/sqeave" :as sqeave])
   (:require-macros [sqeave :refer [defc]]))
 
 (def color-map
@@ -44,7 +45,7 @@
                   :style {:color (hue cat)}
                   :class (str "flex items-center justify-between rounded-lg border border-slate-800/80 px-3 py-2 text-sm text-slate-100 transition hover:border-slate-700 hover:bg-slate-800/60 " (when (= cat (:post/category (post))) "bg-slate-800/80 ring-1 ring-slate-700"))
                   :href (str "/category/" cat)}
-              [:span {:class "capitalize"} (name cat)]
+              [:span {:class "capitalize"} cat]
               [:span {:class "text-[11px] uppercase tracking-[0.18em] text-slate-400"} "browse"]])]]]
    [:div {:class "rounded-2xl border border-slate-800/60 bg-slate-900/60 p-5 shadow-glow backdrop-blur"}
     [:div {:class "mb-3 text-[11px] uppercase tracking-[0.24em] text-slate-400"} "Posts"]
