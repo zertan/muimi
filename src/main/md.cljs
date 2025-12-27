@@ -2,66 +2,96 @@
   (:require ["solid-js" :refer [createResource createMemo]]
             ["@shikijs/markdown-it/async" :refer [fromAsyncCodeToHtml]]
             ["markdown-it-async" :as MarkdownItAsync]
-            ["shiki" :refer [createHighlighter bundledLanguages bundledThemes]]))
+            ["shiki" :refer [createHighlighter]]
+
+            ;; themes
+            ["@shikijs/themes/vitesse-light" :as vitesseLight*]
+            ["@shikijs/themes/vitesse-dark" :as vitesseDark*]
+
+            ;; langs
+            ["@shikijs/langs/javascript" :as javascript*]
+            ["@shikijs/langs/typescript" :as typescript*]
+            ["@shikijs/langs/json" :as json*]
+            ["@shikijs/langs/bash" :as bash*]
+            ["@shikijs/langs/yaml" :as yaml*]
+            ["@shikijs/langs/html" :as html*]
+            ["@shikijs/langs/css" :as css*]
+            ["@shikijs/langs/markdown" :as markdown*]
+            ["@shikijs/langs/clojure" :as clojure*]
+            ["@shikijs/langs/python" :as python*]
+            ["@shikijs/langs/wolfram" :as wolfram*]))
+
+
+;; Normalize all module imports to the actual theme/lang objects
+(def vitesseLight (:default vitesseLight*))
+(def vitesseDark  (:default vitesseDark*))
+
+(def javascript (:default javascript*))
+(def typescript (:default typescript*))
+(def json       (:default json*))
+(def bash       (:default bash*))
+(def yaml       (:default yaml*))
+(def html       (:default html*))
+(def css        (:default css*))
+(def markdown   (:default markdown*))
+(def clojure    (:default clojure*))
+;; (def clojurescript (:default clojurescript*))
+(def python     (:default python*))
+(def wolfram    (:default wolfram*))
 
 (def md ((:default MarkdownItAsync)))
-
-;; ---- Shiki: only load what you need ----
-
-(defonce ^:private highlighter* (atom nil))
 
 (def ^:private theme-light "vitesse-light")
 (def ^:private theme-dark  "vitesse-dark")
 
+(defonce ^:private highlighter* (atom nil))
+
 (def ^:private langs
-  ;; Keep this list tight to reduce bundle size.
-  ;; Keys are the language ids you expect in markdown fences.
-  ;; Add/remove as needed.
-  #js {:javascript      (aget bundledLanguages "javascript")
-       :typescript      (aget bundledLanguages "typescript")
-       :json            (aget bundledLanguages "json")
-       :bash            (aget bundledLanguages "bash")
-       :yaml            (aget bundledLanguages "yaml")
-       :html            (aget bundledLanguages "html")
-       :css             (aget bundledLanguages "css")
-       :markdown        (aget bundledLanguages "markdown")
-       :clojure         (aget bundledLanguages "clojure")
-       :clojurescript   (aget bundledLanguages "clojurescript")
-       :python          (aget bundledLanguages "python")
-       ;; Shiki language id is typically "wolfram" (Wolfram Language / Mathematica)
-       :wolfram         (aget bundledLanguages "wolfram")})
+  ;; language id -> language module
+  #js {"javascript" javascript
+       "typescript" typescript
+;       "json" json
+       "bash" bash
+       "yaml" yaml
+       "html" html
+       "css" css
+       "markdown" markdown
+       "clojure" clojure
+;       "clojurescript" clojurescript
+       "python" python
+       "wolfram" wolfram})
+
+(defn ^:private normalize-lang [lang]
+  (case lang
+    "js" "javascript"
+    "jsx" "javascript"
+    "ts" "typescript"
+    "tsx" "typescript"
+    "sh" "bash"
+    "shell" "bash"
+    "yml" "yaml"
+    "wl" "wolfram"
+    "mma" "wolfram"
+    ;; default:
+    (or lang "text")))
+
+(defn ^:private supported-lang? [lang]
+  (some? (aget langs lang)))
 
 (defn ^:private ensure-highlighter! []
   (if @highlighter*
     (js/Promise.resolve @highlighter*)
     (-> (createHighlighter
-         #js {:themes #js [(aget bundledThemes theme-light)
-                           (aget bundledThemes theme-dark)]
-              :langs  (js/Object.values langs)})
+         {:themes #js [vitesseLight vitesseDark]
+          :langs  (js/Object.values langs)})
         (.then (fn [h]
                  (reset! highlighter* h)
                  h)))))
 
-(defn ^:private normalize-lang [lang]
-  ;; markdown-it gives strings like "ts" "js" etc sometimes.
-  ;; Map common aliases to our supported set.
-  (case lang
-    "js" "javascript"
-    "ts" "typescript"
-    "yml" "yaml"
-    "wl" "wolfram"
-    "mma" "wolfram"
-    ;; default:
-    lang))
-
-(defn ^:private supported-lang? [lang]
-  (some? (aget langs lang)))
-
-(defn ^:private codeToHtmlLimited
-  [code lang options]
+(defn ^:private codeToHtmlLimited [code lang options]
   (let [options (or options #js {})
-        lang*   (normalize-lang (or lang "text"))
-        theme   (or (aget options "theme") theme-light)
+        lang*   lang
+        theme   (or (aget options "theme") theme-dark)
         lang2   (if (supported-lang? lang*) lang* "text")]
     (-> (ensure-highlighter!)
         (.then (fn [h]
@@ -75,35 +105,28 @@
                            :dark  theme-dark}}))
   md)
 
-#_(defn render-md-async
-  "Returns promise"
-  [s]
-  (.renderAsync md s))
-
-#_(defn createMarkdownResource [md-source]
-  (createResource md-source render-md-async))
-
-#_(defn Markdown [{:keys [md]}]
-  (let [[html] (createMarkdownResource md)]
-    html))
+;; ---------- Markdown fetch + render ----------
 
 (defn render-md-async [s]
+  
   (.renderAsync md s))
 
-(defn fetch-markdown [url]
-  (js/console.log "fetch")
-  (-> (js/fetch (str "http://localhost:5173" url))
-      (.then (fn [r] (.text r)))))
+(defn with-base [path]
+  ;; Vite-safe base (works on gh-pages base too)
+  (let [base (.-BASE_URL (.-env js/import.meta))]
+    ;; base usually ends with "/" and path begins with "/"
+    (if (and base path)
+      (str (subs base 0 (dec (count base))) path)
+      path)))
 
-#_(defn createMarkdownResource [source-url]
-  ;; resource key is the URL string -> refetches when URL changes
-  (createResource source-url
-                  (fn [url] (-> (fetch-markdown url)
-                                (.then render-md-async)))))
-
-(defn createMarkdownResource [url$]
+(defn createMarkdownResource [source$]
+  ;; source$ can be:
+  ;; - a string url/path
+  ;; - an accessor fn that returns a string url/path
   (createResource
-    url$
+    (fn []
+      (let [s (if (fn? source$) (source$) source$)]
+        (when s (with-base s))))
     (fn [url]
       (-> (js/fetch url)
           (.then (fn [r] (.text r)))
@@ -111,5 +134,5 @@
 
 (defn Markdown [{:keys [source]}]
   (let [[html] (createMarkdownResource source)]
-    #jsx [:div {:class "markdown"
-                :innerHTML (if (html) (html) "<p>Loading…</p>")}]))
+    #jsx [:div {:class "markdown prose prose-invert max-w-none"
+                :innerHTML (or (html) "<p>Loading…</p>")}]))

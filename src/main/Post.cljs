@@ -1,33 +1,18 @@
 (ns post
-  (:require ["@w3t-ab/sqeave" :as sqeave]
-            ["solid-js" :refer [For createEffect createResource createMemo]]
-            ["@solidjs/router" :refer [Route Router useNavigate useParams useLocation]]
+  (:require ["solid-js" :refer [For]]
             ["./md.cljs" :as md]
-            ["./db.cljs" :as db]
-            [clojure.string :as str])
+            ["@w3t-ab/sqeave" :as sqeave])
   (:require-macros [sqeave :refer [defc]]))
-
-#_(defn select-post! [this blog-id post]
-  (when-let [pid (:post/id post)]
-    (sqeave/add-ident! this [:post/id pid] {:replace [:blog/id blog-id :blog/post]})
-    (sqeave/set! this :blog/category (:post/category post))))
-
-(defn fetch-markdown [path]
-  (when path
-    (js/console.log "fetch:" path)
-    (-> (js/fetch path)
-        (.then (fn [resp] (.text resp))))))
 
 (defc Post [this {:post/keys [id slug title summary tags markdown date category]}]
   #jsx
   [:<>
-   [:header {:class "hero"}
-    [:div {:class "eyebrow"} (str (category) " • " (date))]
-    [:h1 {:class "title"} (title)]
-    [:div {:class "tag-row"}
+   [:header {:class "rounded-2xl border border-slate-800/60 bg-gradient-to-br from-slate-900 via-slate-900/70 to-slate-800 p-6 shadow-glow"}
+    [:div {:class "text-xs uppercase tracking-[0.3em] text-slate-400"} (str (category) " • " (date))]
+    [:h1 {:class "mt-3 text-3xl font-semibold leading-tight text-white"} (title)]
+    [:div {:class "tag-row mt-3 flex flex-wrap gap-2"}
      [For {:each (tags)}
       (fn [t _]
-        #jsx [:span {:class "tag" :key t} t])]]
-    [:p {:class "subtitle"} (summary)]]
-   (markdown)
+        #jsx [:span {:class "inline-flex items-center rounded-full bg-slate-800/70 px-3 py-1 text-xs font-semibold text-slate-100 shadow-inner shadow-black/30" :key t} t])]]
+    [:p {:class "mt-3 text-base leading-relaxed text-slate-300"} (summary)]]
    [md/Markdown {:source markdown}]])
